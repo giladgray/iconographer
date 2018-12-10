@@ -1,0 +1,15 @@
+{
+  "name": "piotr-pixels",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@blueprintjs/icons": "^3.4.0",
+    "typescript": "^3.2.2"
+  },
+  "devDependencies": {
+    "@blueprintjs/tslint-config": "^1.7.0",
+    "@types/node": "^10.12.12",
+    "tslint": "^5.11.0"
+  }
+}
