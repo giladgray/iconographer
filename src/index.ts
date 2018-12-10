@@ -1,3 +1,5 @@
+import { findClosestIcon } from "./iconValues";
+
 // Gilad Gray [11:07 AM]
 // 1. for each icon: svg -> png -> average
 // 2. for each pixel/sample of piotr: find most suitable icon, maybe colorize (edited)
@@ -16,6 +18,4 @@
 // and you probably actually want to match 16x16 piotr pixels with 16x16 icon pixels
 // for that i would do the `sqrt(sum((piotr.lightness - icon.lightness)^2))`
 
-import { averages } from "./icons";
-
-Promise.all(averages).then(console.log);
+console.log(findClosestIcon(40), findClosestIcon(80), findClosestIcon(120));
