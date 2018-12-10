@@ -1,5 +1,11 @@
 {
     "compilerOptions": {
-        "outDir": "../lib"
+        "outDir": "../lib",
+        "target": "es5",
+        "module": "commonjs",
+        "lib": [
+            "dom",
+            "es2015"
+        ]
     }
 }

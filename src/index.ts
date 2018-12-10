@@ -15,3 +15,7 @@
 // now it gets more interesting
 // and you probably actually want to match 16x16 piotr pixels with 16x16 icon pixels
 // for that i would do the `sqrt(sum((piotr.lightness - icon.lightness)^2))`
+
+import { averages } from "./icons";
+
+Promise.all(averages).then(console.log);
