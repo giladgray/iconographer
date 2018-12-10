@@ -1,3 +1,5 @@
+import { IconName } from "@blueprintjs/icons";
+
 // tslint:disable:object-literal-sort-keys
 
 export function findClosestIcon(value: number) {
@@ -10,10 +12,10 @@ export function findClosestIcon(value: number) {
             minIndex = i;
         }
     });
-    return values[minIndex];
+    return values[minIndex].iconName;
 }
 
-const values = [
+const values: Array<{ iconName: IconName; average: number }> = [
     { iconName: "blank", average: 0 },
     { iconName: "small-minus", average: 15 },
     { iconName: "caret-left", average: 22 },

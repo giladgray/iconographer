@@ -4,6 +4,7 @@
         "outDir": "../lib",
         "target": "es5",
         "module": "commonjs",
+        "downlevelIteration": true,
         "lib": [
             "dom",
             "es2015"

@@ -1,22 +1,32 @@
 import { IconName, IconNames, IconSvgPaths16 } from "@blueprintjs/icons";
 import chroma from "chroma-js";
 
+const blacklist: IconName[] = ["blank", "drag-handle-horizontal", "drag-handle-vertical"];
+
+export interface IIconData {
+    iconName: IconName;
+    img: HTMLImageElement;
+    lightness: number[];
+}
+
 export function averages() {
     return Object.keys(IconNames)
-        .map(key => {
+        .map<IIconData | null>(key => {
             const iconName: IconName = IconNames[key];
+            if (blacklist.indexOf(iconName) >= 0) {
+                return null;
+            }
             const img = svg2img(iconName);
-            const average = getAverageColor(img);
-            return { iconName, average };
+            return { iconName, img, lightness: getLightness(img) };
         })
-        .sort((a, b) => a.average - b.average);
+        .filter(x => x != null);
 }
 
 function svg2img(iconName: IconName) {
     const img = document.createElement("img");
     const svg = [
         `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="16" height="16" view-box="0 0 16 16">`,
-        ...IconSvgPaths16[iconName].map(p => `<path fill="#000000" d="${p}" fill-rule="evenodd" />`),
+        ...IconSvgPaths16[iconName].map(p => `<path d="${p}" fill-rule="evenodd" />`),
         `</svg>`,
     ].join("\n");
     img.src = `data:image/svg+xml;base64,${btoa(svg)}`;
@@ -25,29 +35,23 @@ function svg2img(iconName: IconName) {
     return img;
 }
 
-function getAverageColor(img: HTMLImageElement) {
+function getLightness(img: HTMLImageElement) {
     const canvas = document.createElement("canvas");
-    const context = canvas.getContext && canvas.getContext("2d");
-    if (!context) {
-        console.error("non-compliant browser. must support canvas context.");
-        return 0;
-    }
-
-    // set the height and width of the canvas element to that of the image
-    canvas.height = img.naturalHeight || img.offsetHeight || img.height;
-    canvas.width = img.naturalWidth || img.offsetWidth || img.width;
-
+    canvas.width = 16;
+    canvas.height = 16;
+    const context = canvas.getContext("2d")!;
     context.drawImage(img, 0, 0);
 
-    const data = context.getImageData(0, 0, canvas.width, canvas.height);
+    const data = context.getImageData(0, 0, img.width, img.height);
     const length = data.data.length;
 
     const colors = [];
     let i = 0;
     while (i < length) {
         const alpha = data.data[i + 3] / 255;
-        colors.push(chroma(255 * alpha, 255 * alpha, 255 * alpha));
+        const color = chroma(255 * alpha, 255 * alpha, 255 * alpha);
+        colors.push(1 - color.luminance());
         i += 4;
     }
-    return chroma.average(colors).rgba()[0];
+    return colors;
 }

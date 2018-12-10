@@ -1,3 +1,5 @@
+import { replacePicCells } from "./face";
+import { averages } from "./icons";
 import { findClosestIcon } from "./iconValues";
 
 // Gilad Gray [11:07 AM]
@@ -18,4 +20,19 @@ import { findClosestIcon } from "./iconValues";
 // and you probably actually want to match 16x16 piotr pixels with 16x16 icon pixels
 // for that i would do the `sqrt(sum((piotr.lightness - icon.lightness)^2))`
 
-console.log(findClosestIcon(40), findClosestIcon(80), findClosestIcon(120));
+const icons = averages();
+console.log(icons.slice(0, 5));
+
+const input = document.getElementById("file") as HTMLInputElement;
+input.onchange = () => {
+    if (input.files.length < 1) {
+        return;
+    }
+
+    const image = document.createElement("img");
+    image.src = window.URL.createObjectURL(input.files[0]);
+    image.addEventListener("load", () => {
+        console.log("loaded");
+        replacePicCells(image, icons);
+    });
+};
