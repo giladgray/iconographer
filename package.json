@@ -16,7 +16,8 @@
     "tslint": "^5.11.0"
   },
   "scripts": {
-    "build": "parcel build index.html --out-dir docs --public-url ./",
-    "dev": "parcel index.html"
+    "build": "parcel build index.html --out-dir docs --public-url ./ --no-source-maps",
+    "dev": "parcel index.html",
+    "docs": "rm -rf docs && yarn build"
   }
 }
