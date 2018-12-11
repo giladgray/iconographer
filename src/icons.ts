@@ -6,7 +6,6 @@ const blacklist: IconName[] = ["blank", "drag-handle-horizontal", "drag-handle-v
 export interface IIconData {
     content: string;
     iconName: IconName;
-    img: HTMLImageElement;
     lightness: number[];
 }
 
@@ -17,41 +16,29 @@ export function averages() {
             if (blacklist.indexOf(iconName) >= 0) {
                 return null;
             }
-            const img = svg2img(iconName);
-            return { content: IconContents[key], iconName, img, lightness: getLightness(img) };
+            return { content: IconContents[key], iconName, lightness: getLightness(IconContents[key]) };
         })
         .filter(x => x != null);
 }
 
-function svg2img(iconName: IconName) {
-    const img = document.createElement("img");
-    const svg = [
-        `<svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="16" height="16" view-box="0 0 16 16">`,
-        ...IconSvgPaths16[iconName].map(p => `<path d="${p}" fill-rule="evenodd" />`),
-        `</svg>`,
-    ].join("\n");
-    img.src = `data:image/svg+xml;base64,${btoa(svg)}`;
-    img.height = 16;
-    img.width = 16;
-    return img;
-}
-
-function getLightness(img: HTMLImageElement) {
+function getLightness(icon: string) {
     const canvas = document.createElement("canvas");
     canvas.width = 16;
     canvas.height = 16;
     const context = canvas.getContext("2d")!;
-    context.drawImage(img, 0, 0);
+    context.font = "16px Icons16";
+    context.textBaseline = "top";
+    context.fillText(icon, 0, 0);
 
-    const data = context.getImageData(0, 0, img.width, img.height);
+    const data = context.getImageData(0, 0, 16, 16);
     const length = data.data.length;
 
     const colors = [];
     let i = 0;
     while (i < length) {
-        const alpha = data.data[i + 3] / 255;
+        const alpha = 1 - data.data[i + 3] / 255;
         const color = chroma(255 * alpha, 255 * alpha, 255 * alpha);
-        colors.push(1 - color.luminance());
+        colors.push(color.luminance());
         i += 4;
     }
     return colors;
