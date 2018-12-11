@@ -46,17 +46,12 @@ export function replacePicCells(canvas: HTMLCanvasElement, img: HTMLImageElement
     return cells;
 }
 
-export function findClosestIcon(data: number[], icons: IIconData[]) {
-    let min = Infinity;
-    let minIndex = -1;
-    icons.reverse().forEach((entry, i) => {
-        const diff = meanSquareError(data, entry.lightness);
-        if (diff < min) {
-            min = diff;
-            minIndex = i;
-        }
-    });
-    return icons[minIndex];
+function findClosestIcons(data: number[], icons: IIconData[]) {
+    return icons
+        .map((icon, index) => ({ index, v: meanSquareError(data, icon.lightness) }))
+        .sort((a, b) => a.v - b.v)
+        .slice(0, 10)
+        .map(x => x.index);
 }
 
 function meanSquareError(a: number[], b: number[]) {
