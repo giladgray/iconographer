@@ -1,19 +1,21 @@
+import { IconName } from "@blueprintjs/icons";
 import React from "react";
 import { IconGrid, replacePicCells, SIZE } from "./face";
 import { averages } from "./icons";
 
 interface IState {
-    state: "empty" | "loading" | "processing" | "done" | "error";
+    status: "empty" | "loading" | "processing" | "done" | "error";
+
+    color: boolean;
     fileName?: string;
-    noise: number;
     icons: IconGrid;
+    noise: number;
 }
 
 export class App extends React.Component<{}, IState> {
-    public state: IState = { state: "empty", noise: 3, icons: [] };
+    public state: IState = { status: "empty", noise: 3, icons: [], color: true };
 
-    private readonly icons = averages();
-
+    private icons = averages();
     private canvas: HTMLCanvasElement | null;
     private image: HTMLImageElement | null;
 
@@ -28,24 +30,30 @@ export class App extends React.Component<{}, IState> {
         // paint image using icons
         context.font = "16px Icons16";
         context.textBaseline = "top";
+        const usedIcons = new Set<IconName>();
         this.state.icons.forEach((row, y) => {
             row.forEach((c, x) => {
-                context.fillStyle = c.color;
-                const index = noisyGet(c.iconIndices, this.state.noise);
-                context.fillText(this.icons[index].content, x * SIZE, y * SIZE);
+                context.fillStyle = this.state.color ? c.color : "black";
+                const icon = this.icons[noisyGet(c.iconIndices, this.state.noise)];
+                context.fillText(icon.content, x * SIZE, y * SIZE);
+                usedIcons.add(icon.iconName);
             });
         });
+        console.log("Unique icons used:", Array.from(usedIcons.keys()));
     }
 
     public render() {
         return (
             <div>
-                <div>
+                <div className="settings">
+                    <span>File</span>
                     <input type="file" accept="image/png, image/jpeg" autoFocus={true} onChange={this.handleChange} />
+                    <span>Noise</span>
                     <input type="number" min={0} max={10} value={this.state.noise} onChange={this.handleNoiseChange} />
+                    <span>Color</span>
+                    <input type="checkbox" checked={this.state.color} onChange={this.handleColorChange} />
                     <button children="Refresh" disabled={!this.state.fileName} onClick={this.repaint} />
                 </div>
-                <hr />
                 {this.renderMessage()}
                 <canvas
                     height={this.image && this.image.height}
@@ -57,7 +65,7 @@ export class App extends React.Component<{}, IState> {
     }
 
     private renderMessage() {
-        switch (this.state.state) {
+        switch (this.state.status) {
             case "empty":
                 return <p>Choose an image to iconifize!</p>;
             case "error":
@@ -72,14 +80,18 @@ export class App extends React.Component<{}, IState> {
     }
 
     private handleChange: React.ChangeEventHandler<HTMLInputElement> = async ({ target: { files } }) => {
-        this.setState({ state: "loading", fileName: files[0] ? files[0].name : undefined });
+        this.setState({ status: "loading", fileName: files[0] ? files[0].name : undefined });
         this.image = await loadImage(files);
         if (this.image == null) {
-            this.setState({ state: "error" });
+            this.setState({ status: "error" });
             return;
         }
-        this.setState({ state: "processing" });
-        setTimeout(this.compute);
+        this.setState({ status: "processing" });
+        setTimeout(this.compute, 20);
+    };
+
+    private handleColorChange: React.ChangeEventHandler<HTMLInputElement> = ({ target: { checked } }) => {
+        this.setState({ color: checked });
     };
 
     private handleNoiseChange: React.ChangeEventHandler<HTMLInputElement> = ({ target: { value } }) => {
@@ -88,8 +100,8 @@ export class App extends React.Component<{}, IState> {
 
     private compute = () => {
         // this operation takes quite a while, increasing expo for larger photos.
-        const icons = replacePicCells(this.image, this.icons);
-        this.setState({ state: "done", icons });
+        const icons = replacePicCells(this.image, averages());
+        this.setState({ status: "done", icons });
     };
 
     private repaint = () => this.forceUpdate();
@@ -108,5 +120,5 @@ export function loadImage(files: FileList) {
 
 /** Get an element within the first `noise` items. */
 function noisyGet<T>(items: T[], noise: number) {
-    return items[Math.min(items.length - 1, Math.floor(Math.random() * noise))];
+    return items[Math.min(items.length - 1, Math.round(Math.random() * noise))];
 }
