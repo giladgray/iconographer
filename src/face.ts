@@ -6,10 +6,13 @@ import chroma, { Color } from "chroma-js";
 import { IIconData } from "./icons";
 import { getMagicNumber, mapPixels } from "./utils";
 
-const SIZE = 16;
+export const SIZE = 16;
 
-export function replacePicCells(canvas: HTMLCanvasElement, img: HTMLImageElement, icons: IIconData[], noiseFactor = 0) {
+export type IconGrid = Array<Array<{ color: string; iconIndices: number[] }>>;
+
+export function replacePicCells(img: HTMLImageElement, iconData: IIconData[]): IconGrid {
     // prepare canvas
+    const canvas = document.createElement("canvas");
     canvas.width = img.width;
     canvas.height = img.height;
 
@@ -18,31 +21,18 @@ export function replacePicCells(canvas: HTMLCanvasElement, img: HTMLImageElement
     context.drawImage(img, 0, 0);
     context.font = "16px Icons16";
     context.textBaseline = "top";
-    context.fillStyle = "white";
 
     // find closest icon for each SIZExSIZE block
-    const cells: Array<Array<{ iconName: IconName; color: string; content: string }>> = [];
+    const cells: IconGrid = [];
     for (let y = 0; y < img.height; y += SIZE) {
-        const row: Array<{ iconName: IconName; color: string; content: string }> = [];
+        const row: Array<{ color: string; iconIndices: number[] }> = [];
         for (let x = 0; x < img.width; x += SIZE) {
             const colors = mapPixels(context.getImageData(x, y, SIZE, SIZE), (r, g, b) => chroma(r, g, b, "rgb"));
-            const noise = (Math.random() - 0.5) * noiseFactor;
-            const icon = findClosestIcon(colors.map(c => getMagicNumber(c) + noise), icons);
-            row.push({ iconName: icon.iconName, color: chroma.average(colors).hex(), content: icon.content });
+            const iconIndices = findClosestIcons(colors.map(getMagicNumber), iconData);
+            row.push({ color: chroma.average(colors).hex(), iconIndices });
         }
         cells.push(row);
     }
-
-    // clear canvas
-    context.fillRect(0, 0, img.width, img.height);
-
-    // paint icons from above in place of image
-    cells.forEach((row, y) => {
-        row.forEach((c, x) => {
-            context.fillStyle = c.color;
-            context.fillText(c.content, x * SIZE, y * SIZE);
-        });
-    });
     return cells;
 }
 

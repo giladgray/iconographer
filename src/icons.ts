@@ -10,6 +10,8 @@ const blacklist: IconName[] = [
     "slash",
     "minus",
     "small-minus",
+    "numerical",
+    "grid-view",
 ];
 
 export interface IIconData {
