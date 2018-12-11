@@ -8,14 +8,10 @@ import { mapPixels } from "./mapPixels";
 
 const SIZE = 16;
 
-export function replacePicCells(img: HTMLImageElement, icons: IIconData[]) {
+export function replacePicCells(canvas: HTMLCanvasElement, img: HTMLImageElement, icons: IIconData[], noiseFactor = 0) {
     // prepare canvas
-    const canvas = document.createElement("canvas");
-    canvas.id = "canvas";
     canvas.width = img.width;
     canvas.height = img.height;
-    document.getElementById("canvas").remove();
-    document.body.appendChild(canvas);
 
     // draw image
     const context = canvas.getContext("2d");
@@ -27,7 +23,8 @@ export function replacePicCells(img: HTMLImageElement, icons: IIconData[]) {
         const row: Array<{ iconName: IconName; color: string; content: string }> = [];
         for (let x = 0; x < img.width; x += SIZE) {
             const colors = mapPixels(context.getImageData(x, y, SIZE, SIZE), (r, g, b) => chroma(r, g, b, "rgb"));
-            const icon = findClosestIcon(colors.map(c => c.luminance()), icons);
+            const noise = (Math.random() - 0.5) * noiseFactor;
+            const icon = findClosestIcon(colors.map(c => c.luminance() + noise), icons);
             row.push({ iconName: icon.iconName, color: chroma.average(colors).hex(), content: icon.content });
         }
         cells.push(row);
@@ -64,9 +61,8 @@ export function findClosestIcon(data: number[], icons: IIconData[]) {
 
 function meanSquareError(a: number[], b: number[]) {
     let sum = 0;
-    const noise = 0; // (Math.random() - 0.5) / 2;
     for (let i = 0; i < 256; i++) {
-        const error = a[i] - b[i] + noise;
+        const error = a[i] - b[i];
         sum += error * error;
     }
     return Math.sqrt(sum / 256.0);

@@ -1,7 +1,3 @@
-import { replacePicCells } from "./face";
-import { averages } from "./icons";
-import { findClosestIcon } from "./iconValues";
-
 // Gilad Gray [11:07 AM]
 // 1. for each icon: svg -> png -> average
 // 2. for each pixel/sample of piotr: find most suitable icon, maybe colorize (edited)
@@ -23,19 +19,8 @@ import { findClosestIcon } from "./iconValues";
 // tslint:disable-next-line:no-submodule-imports
 import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 
-const icons = averages();
+import React from "react";
+import ReactDOM from "react-dom";
+import { App } from "./app";
 
-const input = document.getElementById("file") as HTMLInputElement;
-input.onchange = () => {
-    if (input.files.length < 1) {
-        return;
-    }
-
-    const image = document.createElement("img");
-    image.src = window.URL.createObjectURL(input.files[0]);
-    image.addEventListener("load", () => {
-        // tslint:disable-next-line:no-console
-        console.log("image loaded");
-        replacePicCells(image, icons);
-    });
-};
+ReactDOM.render(React.createElement(App), document.getElementById("app"));
