@@ -6,8 +6,12 @@
   "dependencies": {
     "@blueprintjs/icons": "^3.4.0",
     "@types/chroma-js": "^1.4.0",
+    "@types/react": "^16.7.13",
+    "@types/react-dom": "^16.0.11",
     "chroma-js": "^1.4.1",
     "parcel-bundler": "^1.10.3",
+    "react": "^16.6.3",
+    "react-dom": "^16.6.3",
     "typescript": "^3.2.2"
   },
   "devDependencies": {
