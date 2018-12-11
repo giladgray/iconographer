@@ -20,6 +20,8 @@ import { findClosestIcon } from "./iconValues";
 // and you probably actually want to match 16x16 piotr pixels with 16x16 icon pixels
 // for that i would do the `sqrt(sum((piotr.lightness - icon.lightness)^2))`
 
+import "@blueprintjs/icons/lib/css/blueprint-icons.css";
+
 const icons = averages();
 console.log(icons.slice(0, 5));
 

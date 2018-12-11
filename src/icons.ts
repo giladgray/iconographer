@@ -1,9 +1,10 @@
-import { IconName, IconNames, IconSvgPaths16 } from "@blueprintjs/icons";
+import { IconContents, IconName, IconNames, IconSvgPaths16 } from "@blueprintjs/icons";
 import chroma from "chroma-js";
 
-const blacklist: IconName[] = ["blank", "drag-handle-horizontal", "drag-handle-vertical"];
+const blacklist: IconName[] = ["blank", "drag-handle-horizontal", "drag-handle-vertical", "full-circle"];
 
 export interface IIconData {
+    content: string;
     iconName: IconName;
     img: HTMLImageElement;
     lightness: number[];
@@ -17,7 +18,7 @@ export function averages() {
                 return null;
             }
             const img = svg2img(iconName);
-            return { iconName, img, lightness: getLightness(img) };
+            return { content: IconContents[key], iconName, img, lightness: getLightness(img) };
         })
         .filter(x => x != null);
 }
