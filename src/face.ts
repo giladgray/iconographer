@@ -64,7 +64,8 @@ export function findClosestIcon(data: number[], icons: IIconData[]) {
 function meanSquareError(a: number[], b: number[]) {
     let sum = 0;
     for (let i = 0; i < 256; i++) {
-        const error = a[i] - b[i] + Math.random() - 0.5;
+        const noise = Math.random() - 0.5;
+        const error = a[i] - b[i] + noise;
         sum += error * error;
     }
     return Math.sqrt(sum / 256.0);
