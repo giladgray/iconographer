@@ -4,10 +4,12 @@
 import { IconName } from "@blueprintjs/icons";
 import chroma, { Color } from "chroma-js";
 import { IIconData } from "./icons";
+import { mapPixels } from "./mapPixels";
 
 const SIZE = 16;
 
 export function replacePicCells(img: HTMLImageElement, icons: IIconData[]) {
+    // prepare canvas
     const canvas = document.createElement("canvas");
     canvas.id = "canvas";
     canvas.width = img.width;
@@ -15,30 +17,29 @@ export function replacePicCells(img: HTMLImageElement, icons: IIconData[]) {
     document.getElementById("canvas").remove();
     document.body.appendChild(canvas);
 
+    // draw image
     const context = canvas.getContext("2d");
     context.drawImage(img, 0, 0);
-    context.font = "16px Icons16";
-    context.textBaseline = "top";
 
+    // find closest icon for each SIZExSIZE block
     const cells: Array<Array<{ iconName: IconName; color: string; content: string }>> = [];
     for (let y = 0; y < img.height; y += SIZE) {
         const row: Array<{ iconName: IconName; color: string; content: string }> = [];
         for (let x = 0; x < img.width; x += SIZE) {
-            const { data } = context.getImageData(x, y, SIZE, SIZE);
-            const colors: Color[] = [];
-            let i = 0;
-            while (i < data.length) {
-                colors.push(chroma(data[i], data[i + 1], data[i + 2], "rgb"));
-                i += 4;
-            }
+            const colors = mapPixels(context.getImageData(x, y, SIZE, SIZE), (r, g, b) => chroma(r, g, b, "rgb"));
             const icon = findClosestIcon(colors.map(c => c.luminance()), icons);
             row.push({ iconName: icon.iconName, color: chroma.average(colors).hex(), content: icon.content });
         }
         cells.push(row);
     }
 
+    // clear canvas
     context.fillStyle = "white";
     context.fillRect(0, 0, img.width, img.height);
+
+    // paint icons from above in place of image
+    context.font = "16px Icons16";
+    context.textBaseline = "top";
     cells.forEach((row, y) => {
         row.forEach((c, x) => {
             context.fillStyle = c.color;
@@ -61,11 +62,10 @@ export function findClosestIcon(data: number[], icons: IIconData[]) {
     return icons[minIndex];
 }
 
-// closest array match
 function meanSquareError(a: number[], b: number[]) {
     let sum = 0;
+    const noise = 0; // (Math.random() - 0.5) / 2;
     for (let i = 0; i < 256; i++) {
-        const noise = Math.random() * 2 - 1;
         const error = a[i] - b[i] + noise;
         sum += error * error;
     }
