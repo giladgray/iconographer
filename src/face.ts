@@ -4,7 +4,7 @@
 import { IconName } from "@blueprintjs/icons";
 import chroma, { Color } from "chroma-js";
 import { IIconData } from "./icons";
-import { mapPixels } from "./mapPixels";
+import { getMagicNumber, mapPixels } from "./utils";
 
 const SIZE = 16;
 
@@ -27,7 +27,7 @@ export function replacePicCells(canvas: HTMLCanvasElement, img: HTMLImageElement
         for (let x = 0; x < img.width; x += SIZE) {
             const colors = mapPixels(context.getImageData(x, y, SIZE, SIZE), (r, g, b) => chroma(r, g, b, "rgb"));
             const noise = (Math.random() - 0.5) * noiseFactor;
-            const icon = findClosestIcon(colors.map(c => c.luminance() + noise), icons);
+            const icon = findClosestIcon(colors.map(c => getMagicNumber(c) + noise), icons);
             row.push({ iconName: icon.iconName, color: chroma.average(colors).hex(), content: icon.content });
         }
         cells.push(row);

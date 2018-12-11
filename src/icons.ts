@@ -1,8 +1,16 @@
 import { IconContents, IconName, IconNames, IconSvgPaths16 } from "@blueprintjs/icons";
 import chroma from "chroma-js";
-import { mapPixels } from "./mapPixels";
+import { getMagicNumber, mapPixels } from "./utils";
 
-const blacklist: IconName[] = ["blank", "drag-handle-horizontal", "drag-handle-vertical", "full-circle"];
+const blacklist: IconName[] = [
+    "blank",
+    "drag-handle-horizontal",
+    "drag-handle-vertical",
+    "full-circle",
+    "slash",
+    "minus",
+    "small-minus",
+];
 
 export interface IIconData {
     content: string;
@@ -39,6 +47,6 @@ function getLightness(icon: string) {
     return mapPixels(context.getImageData(0, 0, 16, 16), (_r, _g, _b, a) => {
         const alpha = 1 - a / 255;
         const color = chroma(255 * alpha, 255 * alpha, 255 * alpha);
-        return color.luminance();
+        return getMagicNumber(color);
     });
 }
