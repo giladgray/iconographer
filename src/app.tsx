@@ -3,6 +3,8 @@ import React from "react";
 import { IconGrid, replacePicCells, SIZE } from "./face";
 import { averages } from "./icons";
 
+import "./app.css";
+
 interface IState {
     status: "empty" | "loading" | "processing" | "done" | "error";
 

@@ -1,0 +1,17 @@
+.settings {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+
+  display: grid;
+  grid-template: 1fr / min-content minmax(min-content, 2fr);
+  grid-gap: 10px;
+  padding: 10px;
+  border: 1px solid lightblue;
+  border-radius: 3px;
+}
+
+.settings button {
+  grid-column-start: 2;
+}
+
