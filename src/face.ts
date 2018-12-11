@@ -18,6 +18,7 @@ export function replacePicCells(img: HTMLImageElement, icons: IIconData[]) {
     const context = canvas.getContext("2d");
     context.drawImage(img, 0, 0);
     context.font = "16px Icons16";
+    context.textBaseline = "top";
 
     const cells: Array<Array<{ iconName: IconName; color: string; content: string }>> = [];
     for (let y = 0; y < img.height; y += SIZE) {
@@ -64,7 +65,7 @@ export function findClosestIcon(data: number[], icons: IIconData[]) {
 function meanSquareError(a: number[], b: number[]) {
     let sum = 0;
     for (let i = 0; i < 256; i++) {
-        const noise = Math.random() - 0.5;
+        const noise = Math.random() * 2 - 1;
         const error = a[i] - b[i] + noise;
         sum += error * error;
     }
