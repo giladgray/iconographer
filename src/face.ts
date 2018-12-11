@@ -16,6 +16,9 @@ export function replacePicCells(canvas: HTMLCanvasElement, img: HTMLImageElement
     // draw image
     const context = canvas.getContext("2d");
     context.drawImage(img, 0, 0);
+    context.font = "16px Icons16";
+    context.textBaseline = "top";
+    context.fillStyle = "white";
 
     // find closest icon for each SIZExSIZE block
     const cells: Array<Array<{ iconName: IconName; color: string; content: string }>> = [];
@@ -31,12 +34,9 @@ export function replacePicCells(canvas: HTMLCanvasElement, img: HTMLImageElement
     }
 
     // clear canvas
-    context.fillStyle = "white";
     context.fillRect(0, 0, img.width, img.height);
 
     // paint icons from above in place of image
-    context.font = "16px Icons16";
-    context.textBaseline = "top";
     cells.forEach((row, y) => {
         row.forEach((c, x) => {
             context.fillStyle = c.color;
