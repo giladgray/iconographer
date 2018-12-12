@@ -1,4 +1,4 @@
-import { IconContents, IconName, IconNames, IconSvgPaths16 } from "@blueprintjs/icons";
+import { IconContents, IconName, IconNames } from "@blueprintjs/icons";
 import chroma from "chroma-js";
 import { getMagicNumber, mapPixels } from "./utils";
 
@@ -21,7 +21,7 @@ export interface IIconData {
 }
 
 /** Get pixel data for all icons. */
-export function averages() {
+export function getIconPixelData() {
     return Object.keys(IconNames)
         .map<IIconData | null>(key => {
             const iconName: IconName = IconNames[key];
@@ -32,6 +32,11 @@ export function averages() {
         })
         .filter(x => x != null);
 }
+
+// for some reason, the first time this is called it returns completely
+// incorrect results. so we do it once here and throw away results.
+// <App> calls it each time before computing icon cells on an image.
+getIconPixelData();
 
 function getLightness(icon: string) {
     // prepare canvas

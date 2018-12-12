@@ -1,7 +1,6 @@
-import { IconContents, IconName } from "@blueprintjs/icons";
 import React from "react";
-import { IconGrid, replacePicCells, SIZE } from "./face";
-import { averages } from "./icons";
+import { IIconCell, replacePicCells, SIZE } from "./face";
+import { getIconPixelData } from "./icons";
 
 import "./app.css";
 
@@ -10,14 +9,13 @@ interface IState {
 
     color: boolean;
     fileName?: string;
-    icons: IconGrid;
+    icons: IIconCell[][];
     noise: number;
 }
 
 export class App extends React.Component<{}, IState> {
     public state: IState = { status: "empty", noise: 3, icons: [], color: true };
 
-    private icons = averages();
     private canvas: HTMLCanvasElement | null;
     private image: HTMLImageElement | null;
 
@@ -32,16 +30,13 @@ export class App extends React.Component<{}, IState> {
         // paint image using icons
         context.font = "16px Icons16";
         context.textBaseline = "top";
-        const usedIcons = new Set<IconName>();
         this.state.icons.forEach((row, y) => {
             row.forEach((c, x) => {
                 context.fillStyle = this.state.color ? c.color : "black";
-                const icon = this.icons[noisyGet(c.iconIndices, this.state.noise)];
+                const icon = noisyGet(c.icons, this.state.noise);
                 context.fillText(icon.content, x * SIZE, y * SIZE);
-                usedIcons.add(icon.iconName);
             });
         });
-        console.log("Unique icons used:", Array.from(usedIcons.keys()));
     }
 
     public render() {
@@ -101,9 +96,9 @@ export class App extends React.Component<{}, IState> {
     };
 
     private compute = () => {
-        // this operation takes quite a while, increasing expo for larger photos.
-        this.icons = averages();
-        const icons = replacePicCells(this.image, this.icons);
+        // this operation takes quite a while, increasing exponentially for larger photos.
+        // re-compute icon values.
+        const icons = replacePicCells(this.image, getIconPixelData());
         this.setState({ status: "done", icons });
     };
 
