@@ -3722,10 +3722,10 @@ function replacePicCells(img, iconData) {
       var colors = utils_1.mapPixels(context.getImageData(x, y, exports.SIZE, exports.SIZE), function (r, g, b) {
         return chroma_js_1.default(r, g, b, "rgb");
       });
-      var iconIndices = findClosestIcons(colors.map(utils_1.getMagicNumber), iconData);
+      var icons = findClosestIcons(colors.map(utils_1.getMagicNumber), iconData);
       row.push({
         color: chroma_js_1.default.average(colors).hex(),
-        iconIndices: iconIndices
+        icons: icons
       });
     }
 
@@ -3738,15 +3738,15 @@ function replacePicCells(img, iconData) {
 exports.replacePicCells = replacePicCells;
 
 function findClosestIcons(data, icons) {
-  return icons.map(function (icon, index) {
+  return icons.map(function (icon) {
     return {
-      index: index,
+      icon: icon,
       v: meanSquareError(data, icon.lightness)
     };
   }).sort(function (a, b) {
     return a.v - b.v;
   }).slice(0, 10).map(function (x) {
-    return x.index;
+    return x.icon;
   });
 }
 
@@ -6611,7 +6611,7 @@ var utils_1 = require("./utils");
 var blacklist = ["blank", "drag-handle-horizontal", "drag-handle-vertical", "full-circle", "slash", "minus", "small-minus", "numerical", "grid-view"];
 /** Get pixel data for all icons. */
 
-function averages() {
+function getIconPixelData() {
   return Object.keys(icons_1.IconNames).map(function (key) {
     var iconName = icons_1.IconNames[key];
 
@@ -6629,7 +6629,11 @@ function averages() {
   });
 }
 
-exports.averages = averages;
+exports.getIconPixelData = getIconPixelData; // for some reason, the first time this is called it returns completely
+// incorrect results. so we do it once here and throw away results.
+// <App> calls it each time before computing icon cells on an image.
+
+getIconPixelData();
 
 function getLightness(icon) {
   // prepare canvas
@@ -6850,7 +6854,6 @@ function (_super) {
       icons: [],
       color: true
     };
-    _this.icons = icons_1.averages();
 
     _this.handleChange = function (_a) {
       var files = _a.target.files;
@@ -6910,9 +6913,9 @@ function (_super) {
     };
 
     _this.compute = function () {
-      // this operation takes quite a while, increasing expo for larger photos.
-      _this.icons = icons_1.averages();
-      var icons = face_1.replacePicCells(_this.image, _this.icons);
+      // this operation takes quite a while, increasing exponentially for larger photos.
+      // re-compute icon values.
+      var icons = face_1.replacePicCells(_this.image, icons_1.getIconPixelData());
 
       _this.setState({
         status: "done",
@@ -6941,18 +6944,13 @@ function (_super) {
 
     context.font = "16px Icons16";
     context.textBaseline = "top";
-    var usedIcons = new Set();
     this.state.icons.forEach(function (row, y) {
       row.forEach(function (c, x) {
         context.fillStyle = _this.state.color ? c.color : "black";
-
-        var icon = _this.icons[noisyGet(c.iconIndices, _this.state.noise)];
-
+        var icon = noisyGet(c.icons, _this.state.noise);
         context.fillText(icon.content, x * face_1.SIZE, y * face_1.SIZE);
-        usedIcons.add(icon.iconName);
       });
     });
-    console.log("Unique icons used:", Array.from(usedIcons.keys()));
   };
 
   App.prototype.render = function () {
@@ -6984,11 +6982,6 @@ function (_super) {
       width: this.image && this.image.width,
       ref: function ref(_ref) {
         return _this.canvas = _ref;
-      }
-    }), react_1.default.createElement("span", {
-      className: "preload-font",
-      style: {
-        fontFamily: "Icons16"
       }
     }));
   };
@@ -7038,9 +7031,7 @@ function noisyGet(items, noise) {
   return items[Math.min(items.length - 1, Math.round(Math.random() * noise))];
 }
 },{"react":"HdMw","./face":"NWaT","./icons":"I7Nh","./app.css":"WjnD"}],"9B6d":[function(require,module,exports) {
-"use strict"; // Gilad Gray [11:07 AM]
-// 1. for each icon: svg -> png -> average
-// 2. for each pixel/sample of piotr: find most suitable icon, maybe colorize (edited)
+"use strict";
 
 var __importDefault = this && this.__importDefault || function (mod) {
   return mod && mod.__esModule ? mod : {
@@ -7050,18 +7041,7 @@ var __importDefault = this && this.__importDefault || function (mod) {
 
 Object.defineProperty(exports, "__esModule", {
   value: true
-}); // Bill Dwyer [11:08 AM]
-// svg -> png
-// for each png, create an array of `{avgLightness , iconName }`. sort by `avgLightness`
-// for each piotr pixel, binary search to find nearest `avgLightness`
-// colorize icon using hue/sat from piotr pixel
-// Gilad Gray [11:10 AM]
-// perhaps 1 “piotr-pixel” `pp` == 16x16 “actual pixels”
-// Bill Dwyer [11:10 AM]
-// now it gets more interesting
-// and you probably actually want to match 16x16 piotr pixels with 16x16 icon pixels
-// for that i would do the `sqrt(sum((piotr.lightness - icon.lightness)^2))`
-// tslint:disable-next-line:no-submodule-imports
+}); // tslint:disable-next-line:no-submodule-imports
 
 require("@blueprintjs/icons/lib/css/blueprint-icons.css");
 
