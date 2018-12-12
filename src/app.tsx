@@ -1,4 +1,4 @@
-import { IconName } from "@blueprintjs/icons";
+import { IconContents, IconName } from "@blueprintjs/icons";
 import React from "react";
 import { IconGrid, replacePicCells, SIZE } from "./face";
 import { averages } from "./icons";
@@ -103,7 +103,8 @@ export class App extends React.Component<{}, IState> {
 
     private compute = () => {
         // this operation takes quite a while, increasing expo for larger photos.
-        const icons = replacePicCells(this.image, averages());
+        this.icons = averages();
+        const icons = replacePicCells(this.image, this.icons);
         this.setState({ status: "done", icons });
     };
 
