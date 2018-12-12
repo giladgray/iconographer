@@ -62,6 +62,7 @@ export class App extends React.Component<{}, IState> {
                     width={this.image && this.image.width}
                     ref={ref => (this.canvas = ref)}
                 />
+                <span className="preload-font" style={{ fontFamily: "Icons16" }} />
             </div>
         );
     }
