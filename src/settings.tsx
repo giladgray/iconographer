@@ -29,15 +29,15 @@ export class Settings extends React.Component<ISettingsProps, ISettingsState> {
                 {showSettings && (
                     <Card className="settings">
                         <ImageInput fill={true} onChange={this.props.onFileChange} text={this.props.fileName} />
-                        <Divider className="divider" />
                         <p className={Classes.TEXT_MUTED}>Right-click image to save to your computer.</p>
-                        <FormGroup label="Noise" inline={true} helperText="Choose randomly from the top N icons.">
-                            <Slider min={0} max={10} value={this.props.noise} onChange={this.props.onNoiseChange} />
-                        </FormGroup>
+                        <Divider className="divider" />
                         <FormGroup label="Color" inline={true}>
                             <Switch checked={this.props.color} onChange={this.handleColorChange}>
                                 Colorize icons
                             </Switch>
+                        </FormGroup>
+                        <FormGroup label="Noise" inline={true} helperText="Choose randomly from the top N icons.">
+                            <Slider min={0} max={10} value={this.props.noise} onChange={this.props.onNoiseChange} />
                         </FormGroup>
                         <Button
                             fill={true}
