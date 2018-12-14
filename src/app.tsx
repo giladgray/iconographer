@@ -3,7 +3,7 @@ import { IIconCell, replacePicCells, SIZE } from "./face";
 import { getIconPixelData } from "./icons";
 import { ISettings, Settings } from "./settings";
 
-import { NonIdealState, Spinner } from "@blueprintjs/core";
+import { Button, NonIdealState, Spinner } from "@blueprintjs/core";
 import { ImageInput } from "./imageInput";
 
 import "./app.css";
@@ -14,7 +14,7 @@ interface IState extends ISettings {
 }
 
 export class App extends React.Component<{}, IState> {
-    public state: IState = { status: "empty", fileName: undefined, noise: 3, icons: [], color: true };
+    public state: IState = { color: true, fileName: undefined, icons: [], noise: 3, status: "empty" };
 
     private canvas: HTMLCanvasElement | null;
     private image: HTMLImageElement | null;
@@ -42,7 +42,7 @@ export class App extends React.Component<{}, IState> {
     public render() {
         return (
             this.renderStatus() || (
-                <div>
+                <>
                     <Settings
                         {...this.state}
                         onColorChange={this.handleColorChange}
@@ -55,7 +55,7 @@ export class App extends React.Component<{}, IState> {
                         width={this.image && this.image.width}
                         ref={ref => (this.canvas = ref)}
                     />
-                </div>
+                </>
             )
         );
     }
