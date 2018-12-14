@@ -27805,11 +27805,17 @@ function (_super) {
       fill: true,
       onChange: this.props.onFileChange,
       text: this.props.fileName
-    }), react_1.default.createElement(core_1.Divider, {
-      className: "divider"
     }), react_1.default.createElement("p", {
       className: core_1.Classes.TEXT_MUTED
-    }, "Right-click image to save to your computer."), react_1.default.createElement(core_1.FormGroup, {
+    }, "Right-click image to save to your computer."), react_1.default.createElement(core_1.Divider, {
+      className: "divider"
+    }), react_1.default.createElement(core_1.FormGroup, {
+      label: "Color",
+      inline: true
+    }, react_1.default.createElement(core_1.Switch, {
+      checked: this.props.color,
+      onChange: this.handleColorChange
+    }, "Colorize icons")), react_1.default.createElement(core_1.FormGroup, {
       label: "Noise",
       inline: true,
       helperText: "Choose randomly from the top N icons."
@@ -27818,13 +27824,7 @@ function (_super) {
       max: 10,
       value: this.props.noise,
       onChange: this.props.onNoiseChange
-    })), react_1.default.createElement(core_1.FormGroup, {
-      label: "Color",
-      inline: true
-    }, react_1.default.createElement(core_1.Switch, {
-      checked: this.props.color,
-      onChange: this.handleColorChange
-    }, "Colorize icons")), react_1.default.createElement(core_1.Button, {
+    })), react_1.default.createElement(core_1.Button, {
       fill: true,
       text: "Refresh",
       disabled: !this.props.fileName,
@@ -28174,7 +28174,9 @@ function (_super) {
           action: react_1.default.createElement(imageInput_1.ImageInput, {
             onChange: this.handleChange
           })
-        });
+        }, react_1.default.createElement("div", {
+          className: core_1.Classes.TEXT_MUTED
+        }, "Files are never uploaded. All processing happens right here."));
 
       case "error":
         return react_1.default.createElement(core_1.NonIdealState, {
