@@ -1,4 +1,4 @@
-import { Button, Card, Classes, Divider, FormGroup, Slider, Switch } from "@blueprintjs/core";
+import { Button, Card, Classes, Divider, FormGroup, Slider, Switch, Tooltip } from "@blueprintjs/core";
 import React from "react";
 import { ImageInput } from "./imageInput";
 
@@ -47,11 +47,9 @@ export class Settings extends React.Component<ISettingsProps, ISettingsState> {
                         />
                     </Card>
                 )}
-                <Button
-                    className="toggle"
-                    icon={showSettings ? "eye-off" : "cog"}
-                    onClick={this.handleSettingsToggle}
-                />
+                <Tooltip className="toggle" content={`${showSettings ? "Hide" : "Show"} settings`} position="left">
+                    <Button icon={showSettings ? "eye-off" : "cog"} onClick={this.handleSettingsToggle} />
+                </Tooltip>
             </>
         );
     }
