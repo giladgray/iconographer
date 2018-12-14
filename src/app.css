@@ -3,13 +3,13 @@ body {
 }
 
 .toggle {
-  position: absolute;
+  position: fixed;
   top: 5px;
   right: 5px;
 }
 
 .settings {
-  position: absolute;
+  position: fixed;
   top: 15px;
   right: 15px;
 }
