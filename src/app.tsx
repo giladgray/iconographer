@@ -1,26 +1,26 @@
 import React from "react";
 import { IIconCell, replacePicCells, SIZE } from "./face";
 import { getIconPixelData } from "./icons";
+import { ISettings, Settings } from "./settings";
+
+import { NonIdealState, Spinner } from "@blueprintjs/core";
+import { ImageInput } from "./imageInput";
 
 import "./app.css";
 
-interface IState {
+interface IState extends ISettings {
     status: "empty" | "loading" | "processing" | "done" | "error";
-
-    color: boolean;
-    fileName?: string;
     icons: IIconCell[][];
-    noise: number;
 }
 
 export class App extends React.Component<{}, IState> {
-    public state: IState = { status: "empty", noise: 3, icons: [], color: true };
+    public state: IState = { status: "empty", fileName: undefined, noise: 3, icons: [], color: true };
 
     private canvas: HTMLCanvasElement | null;
     private image: HTMLImageElement | null;
 
     public componentDidUpdate() {
-        if (this.canvas == null || this.image == null) {
+        if (this.canvas == null || this.image == null || this.state.status !== "done") {
             return;
         }
         const context = this.canvas.getContext("2d");
@@ -41,42 +41,59 @@ export class App extends React.Component<{}, IState> {
 
     public render() {
         return (
-            <div>
-                <div className="settings">
-                    <span>File</span>
-                    <input type="file" accept="image/png, image/jpeg" autoFocus={true} onChange={this.handleChange} />
-                    <span>Noise</span>
-                    <input type="number" min={0} max={10} value={this.state.noise} onChange={this.handleNoiseChange} />
-                    <span>Color</span>
-                    <input type="checkbox" checked={this.state.color} onChange={this.handleColorChange} />
-                    <button children="Refresh" disabled={!this.state.fileName} onClick={this.repaint} />
+            this.renderStatus() || (
+                <div>
+                    <Settings
+                        {...this.state}
+                        onColorChange={this.handleColorChange}
+                        onFileChange={this.handleChange}
+                        onNoiseChange={this.handleNoiseChange}
+                        onRefresh={this.repaint}
+                    />
+                    <canvas
+                        height={this.image && this.image.height}
+                        width={this.image && this.image.width}
+                        ref={ref => (this.canvas = ref)}
+                    />
                 </div>
-                {this.renderMessage()}
-                <canvas
-                    height={this.image && this.image.height}
-                    width={this.image && this.image.width}
-                    ref={ref => (this.canvas = ref)}
-                />
-            </div>
+            )
         );
     }
 
-    private renderMessage() {
+    private renderStatus() {
         switch (this.state.status) {
             case "empty":
-                return <p>Choose an image to iconifize!</p>;
+                return (
+                    <NonIdealState
+                        icon="image-rotate-left"
+                        title="Choose an image"
+                        action={<ImageInput onChange={this.handleChange} />}
+                    />
+                );
             case "error":
-                return <p>An error occurred. Please try again.</p>;
+                return (
+                    <NonIdealState
+                        icon="error"
+                        title="An error occured. Please try again."
+                        action={<ImageInput onChange={this.handleChange} />}
+                    />
+                );
             case "loading":
-                return <p>Loading image...</p>;
+                return <NonIdealState icon={<Spinner size={50} />} title="Loading image..." />;
             case "processing":
-                return <p>Processing image... This can take a while...</p>;
+                return (
+                    <NonIdealState
+                        icon={<Spinner intent="primary" size={50} />}
+                        title="Processing image..."
+                        description="This can take several minutes for large images."
+                    />
+                );
             default:
                 return null;
         }
     }
 
-    private handleChange: React.ChangeEventHandler<HTMLInputElement> = async ({ target: { files } }) => {
+    private handleChange = async (files: FileList) => {
         this.setState({ status: "loading", fileName: files[0] ? files[0].name : undefined });
         this.image = await loadImage(files);
         if (this.image == null) {
@@ -84,16 +101,12 @@ export class App extends React.Component<{}, IState> {
             return;
         }
         this.setState({ status: "processing" });
-        setTimeout(this.compute, 20);
+        setTimeout(this.compute, 150);
     };
 
-    private handleColorChange: React.ChangeEventHandler<HTMLInputElement> = ({ target: { checked } }) => {
-        this.setState({ color: checked });
-    };
+    private handleColorChange = (color: boolean) => this.setState({ color });
 
-    private handleNoiseChange: React.ChangeEventHandler<HTMLInputElement> = ({ target: { value } }) => {
-        this.setState({ noise: +value });
-    };
+    private handleNoiseChange = (noise: number) => this.setState({ noise });
 
     private compute = () => {
         // this operation takes quite a while, increasing exponentially for larger photos.

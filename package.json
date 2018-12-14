@@ -4,6 +4,7 @@
   "main": "index.js",
   "license": "UNLICENSED",
   "dependencies": {
+    "@blueprintjs/core": "^3.10.0",
     "@blueprintjs/icons": "^3.4.0",
     "@types/chroma-js": "^1.4.0",
     "@types/react": "^16.7.13",
