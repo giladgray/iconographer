@@ -24,6 +24,8 @@ export class App extends React.Component<{}, IState> {
             return;
         }
         const context = this.canvas.getContext("2d");
+        context.save();
+        context.scale(2, 2);
         // clear canvas
         context.fillStyle = "white";
         context.fillRect(0, 0, this.image.width, this.image.height);
@@ -37,30 +39,10 @@ export class App extends React.Component<{}, IState> {
                 context.fillText(icon.content, x * SIZE, y * SIZE);
             });
         });
+        context.restore();
     }
 
     public render() {
-        return (
-            this.renderStatus() || (
-                <>
-                    <Settings
-                        {...this.state}
-                        onColorChange={this.handleColorChange}
-                        onFileChange={this.handleChange}
-                        onNoiseChange={this.handleNoiseChange}
-                        onRefresh={this.repaint}
-                    />
-                    <canvas
-                        height={this.image && this.image.height}
-                        width={this.image && this.image.width}
-                        ref={ref => (this.canvas = ref)}
-                    />
-                </>
-            )
-        );
-    }
-
-    private renderStatus() {
         switch (this.state.status) {
             case "empty":
                 return (
@@ -89,7 +71,24 @@ export class App extends React.Component<{}, IState> {
                     />
                 );
             default:
-                return null;
+                const { width, height } = this.image;
+                return (
+                    <>
+                        <Settings
+                            {...this.state}
+                            onColorChange={this.handleColorChange}
+                            onFileChange={this.handleChange}
+                            onNoiseChange={this.handleNoiseChange}
+                            onRefresh={this.repaint}
+                        />
+                        <canvas
+                            height={height * 2}
+                            width={width * 2}
+                            style={{ width, height }}
+                            ref={ref => (this.canvas = ref)}
+                        />
+                    </>
+                );
         }
     }
 
@@ -101,7 +100,7 @@ export class App extends React.Component<{}, IState> {
             return;
         }
         this.setState({ status: "processing" });
-        setTimeout(this.compute, 150);
+        setTimeout(this.compute, 200);
     };
 
     private handleColorChange = (color: boolean) => this.setState({ color });
