@@ -3,7 +3,7 @@ import { IIconCell, replacePicCells, SIZE } from "./face";
 import { getIconPixelData } from "./icons";
 import { ISettings, Settings } from "./settings";
 
-import { Button, NonIdealState, Spinner } from "@blueprintjs/core";
+import { Button, Classes, NonIdealState, Spinner } from "@blueprintjs/core";
 import { ImageInput } from "./imageInput";
 
 import "./app.css";
@@ -50,7 +50,11 @@ export class App extends React.Component<{}, IState> {
                         icon="image-rotate-left"
                         title="Choose an image"
                         action={<ImageInput onChange={this.handleChange} />}
-                    />
+                    >
+                        <div className={Classes.TEXT_MUTED}>
+                            Files are never uploaded. All processing happens right here.
+                        </div>
+                    </NonIdealState>
                 );
             case "error":
                 return (
